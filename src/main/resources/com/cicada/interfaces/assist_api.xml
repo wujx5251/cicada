@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces xmlns="http://www.dotin.cc/schema/interfaces"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.dotin.cc/schema/interfaces http://www.dotin.cc/schema/interfaces/interface.xsd"
+            namespace="trade" version="v1.1.0" group="辅助接口">
+
+    <interface id="refund" method="POST" name="交易退货">
+        <desc><![CDATA[
+        支持平台全渠道退回处理 <br/>
+        特别注意以下重要规则：<br/>
+            ◆ recordId必须上送消费（预授权除外的付款接口）交易成功时返回的平台流水号；<br/>
+            ◆ 无卡支付须在付款完成后30天内、支付宝为3个月、微信为1年；<br/>
+            ◆ 交易金额amount不上送时会对消费时的全额退款；
+        ]]></desc>
+        <request>
+            <include refid="params.request"/>
+        </request>
+        <response>
+            <include refid="params.response"/>
+        </response>
+    </interface>
+
+    <interface id="cancel" method="POST" name="交易取消">
+        <desc><![CDATA[
+        面向无卡支付交易（快钱、银联） <br/>
+        特别注意以下重要规则：<br/>
+            ◆ recordId必须上送消费交易成功时返回的平台流水号；<br/>
+            ◆ 仅允许为当天发生的交易（预授权除外，30天内）；<br/>
+            ◆ 预授权交易已经进行完成操作时不允许取消，需先进行预授权完成撤销后方可进行预授权取消；
+        ]]></desc>
+        <request>
+            <include refid="params.request">
+                <exclusion>amount</exclusion>
+            </include>
+        </request>
+        <response>
+            <include refid="params.response"/>
+        </response>
+    </interface>
+
+    <interface id="query" method="GET" name="交易结果查询">
+        <request>
+            <param id="mchId" name="商户编号" required="true" length="32">
+                <desc>商户编码,支付平台分配给商户的ID，在后台应用信息里面可以查看到</desc>
+            </param>
+            <choose>
+                <when test="recordId!=null and recordId!=''">
+                    <param id="recordId" name="交易流水号" required="true">
+                        <desc>交易平台流水号,同orderId+orderTime二选一</desc>
+                    </param>
+                </when>
+                <otherwise>
+                    <param id="orderId" name="业务单号" required="true" length="32"/>
+                    <param id="orderTime" name="订单时间" dataType="DateTime" required="true" length="19">
+                        <desc>商户发送交易时间（yyyy-MM-dd HH:mm:ss）</desc>
+                    </param>
+                </otherwise>
+            </choose>
+            <param id="sign" name="签名信息" length="48" required="true">
+                <desc> <![CDATA[ ${format.signDesc} ]]> </desc>
+            </param>
+        </request>
+        <response>
+            <include refid="params.response"/>
+        </response>
+    </interface>
+
+    <interface id="sms.send" method="POST" name="交易短信发送">
+        <request>
+            <if test="channelId=='kqpay' and smsType=='01'">
+                <!--快钱绑卡短信进行接口重定向-->
+                <var name="method" value="trade.bind.sms.send"/>
+            </if>
+            <param id="mchId" name="商户编号" required="true" length="32">
+                <desc>商户编码,支付平台分配给商户的ID，在后台应用信息里面可以查看到</desc>
+            </param>
+            <param id="appId" name="app id" required="true" length="32">
+                <desc>应用ID,支付平台分配给应用的ID，在后台应用信息里面可以查看到</desc>
+            </param>
+            <param id="channelId" name="支付渠道" required="true" length="10">
+                <pattern>unionpay|kqpay</pattern>
+                <desc>
+                    unionpay：银联支付，kqpay：快钱支付
+                </desc>
+            </param>
+            <param id="smsType" name="短信类型" required="true" length="2">
+                <pattern>00|01|02</pattern>
+                <desc>00：消费短信，01：绑卡短信，02：预授权短信</desc>
+            </param>
+            <choose>
+                <when test="smsType=='00' or smsType=='02'">
+                    <param id="bindId" name="绑卡Id" required="true" length="32">
+                        <desc>smsType为00或02时必填</desc>
+                    </param>
+                    <param id="amount" name="交易金额" dataType="Integer" required="true">
+                        <desc>smsType为00或02时必填，单位为分1元上送100</desc>
+                    </param>
+                </when>
+                <otherwise>
+                    <param id="cardNo" name="银行卡号" required="true" length="20">
+                        <pattern>${format.bankCardNo}</pattern>
+                        <desc>smsType为01时必填</desc>
+                    </param>
+                    <param id="cardType" name="银行卡类型" length="2" required="true">
+                        <pattern>01|02</pattern>
+                        <desc>smsType为01时必填，01:借记卡，02:贷记卡</desc>
+                    </param>
+                    <param id="holderName" name="持卡人姓名" length="100" required="true">
+                        <desc>smsType为01时必填</desc>
+                    </param>
+                    <param id="certificationType" name="持卡人证件类型" length="2">
+                        <pattern>01|02|03|04|05|06|07|08|99</pattern>
+                        <default>01</default>
+                        <desc>smsType为01时生效，01:身份证，02:军官证，03:护照，04:回乡证，05:台胞证，06:警官证，07:士兵证，08:外国人居留证</desc>
+                    </param>
+                    <param id="certificationNo" name="持卡人证件号" length="32" required="true">
+                        <desc>smsType为01时必填</desc>
+                    </param>
+                    <param id="mobileNo" name="持卡人手机号" length="11" required="true">
+                        <desc>smsType为01时必填</desc>
+                    </param>
+                    <if test="cardType=='02'">
+                        <param id="cvv2" name="cvv" length="3" required="true">
+                            <desc>cvv2为持卡人签名右面的3为数字，cardType为02时必填</desc>
+                            <pattern>[0-9]{3}</pattern>
+                        </param>
+                        <param id="expireMonth" name="有效期月份" length="2" required="true">
+                            <desc>2位月，不足2位前补0，cardType为02时必填</desc>
+                            <pattern>0[1-9]|1[0-2]</pattern>
+                        </param>
+                        <param id="expireYear" name="有效期年份" length="2" required="true">
+                            <desc>2位年，不足2位前补0，cardType为02时必填</desc>
+                            <pattern>[0-9]{2}</pattern>
+                        </param>
+                    </if>
+                    <param id="bankCode" name="发卡行编码" length="6">
+                        <desc>请上送发卡行简码，如工商银行ICBC（可通过获取支持银行卡列表接口获取）</desc>
+                    </param>
+                </otherwise>
+            </choose>
+            <param id="sign" name="签名信息" length="48" required="true">
+                <desc> <![CDATA[ ${format.signDesc} ]]> </desc>
+            </param>
+        </request>
+        <response>
+            <param id="recordId" name="短信流水号" length="32"/>
+            <param id="status" name="短信发送状态" required="true">
+                <desc>FAIL:失败，SUCCESS：成功</desc>
+            </param>
+            <param id="resultMsg" value="errMsg" name="信息描述"/>
+        </response>
+    </interface>
+
+    <interface id="card.bind" method="POST" name="银行卡绑定">
+        <request>
+            <param id="mchId" name="商户编号" required="true" length="32">
+                <desc>商户编号,支付平台分配给商户的ID，在后台应用信息里面可以查看到</desc>
+            </param>
+            <param id="authCode" alias="smsCode" name="短信验证码" required="true" length="6">
+                <desc>短信消费时必须上送</desc>
+            </param>
+            <param id="recordId" name="短信流水号" required="true" length="32"/>
+            <param id="sign" name="签名信息" length="48" required="true">
+                <desc> <![CDATA[ ${format.signDesc} ]]> </desc>
+            </param>
+        </request>
+        <response>
+            <if test="status==@com.cicada.core.enums.TradingStatus@SUCCESS">
+                <param id="bindId" value="data" name="绑卡Id" length="32"></param>
+            </if>
+            <param id="status" name="绑定状态" required="true">
+                <desc>FAIL:失败，SUCCESS：成功</desc>
+            </param>
+            <param id="resultMsg" value="errMsg" name="信息描述"/>
+        </response>
+    </interface>
+
+    <interface id="card.unbind" method="POST" name="银行卡绑定解除">
+        <request>
+            <param id="mchId" name="商户编号" required="true" length="32">
+                <desc>商户编号,支付平台分配给商户的ID，在后台应用信息里面可以查看到</desc>
+            </param>
+            <param id="bindId" name="绑卡Id" required="true" length="32"/>
+            <param id="sign" name="签名信息" length="48" required="true">
+                <desc> <![CDATA[ ${format.signDesc} ]]> </desc>
+            </param>
+        </request>
+        <response>
+            <param id="status" name="解绑状态" required="true">
+                <desc>FAIL:失败，SUCCESS：成功</desc>
+            </param>
+            <param id="resultMsg" value="errMsg" name="信息描述"/>
+        </response>
+    </interface>
+
+    <interface id="card.info" method="GET" name="银行卡信息查询">
+        <request>
+            <param id="mchId" name="商户编号" required="true" length="32">
+                <desc>商户编码,支付平台分配给商户的ID，在后台应用信息里面可以查看到</desc>
+            </param>
+            <param id="appId" name="app id" required="true" length="32">
+                <desc>应用ID,支付平台分配给应用的ID，在后台应用信息里面可以查看到</desc>
+            </param>
+            <param id="channelId" name="支付渠道" required="true" length="10">
+                <pattern>kqpay</pattern>
+                <desc>
+                    kqpay：快钱支付
+                </desc>
+            </param>
+            <param id="cardNo" name="银行卡号" required="true" length="20">
+                <pattern>${format.bankCardNo}</pattern>
+            </param>
+            <param id="sign" name="签名信息" length="48" required="true">
+                <desc> <![CDATA[ ${format.signDesc} ]]> </desc>
+            </param>
+        </request>
+        <response>
+            <if test="status==@com.cicada.core.enums.TradingStatus@SUCCESS">
+                <param id="bankCode" value="data.bankCode" name="发卡行编码"/>
+                <param id="bankName" value="data.bankName" name="发卡行名称"/>
+                <param id="cardType" value="data.cardType" name="卡类型" length="2">
+                    <desc>01:借记卡，02:贷记卡</desc>
+                </param>
+            </if>
+            <param id="status" name="查询状态" required="true">
+                <desc>FAIL:失败，SUCCESS：成功</desc>
+            </param>
+            <param id="resultMsg" value="errMsg" name="信息描述"/>
+        </response>
+    </interface>
+
+    <interface id="bank.list" method="GET" name="支持银行列表">
+        <request>
+            <param id="channel" alias="channelId" name="交易类型" required="true" length="15">
+                <pattern>unionpay|kqpay</pattern>
+                <desc>
+                    unionpay：银联支付，kqpay：快钱支付
+                </desc>
+            </param>
+            <param id="cardType" name="银行卡类型" length="2">
+                <pattern>01|02</pattern>
+                <default>01</default>
+                <desc>smsType为01时必填，01:借记卡，02:贷记卡</desc>
+            </param>
+        </request>
+        <response>
+            <array id="array" alias="bankList" name="支持银行列表">
+                <param id="name" value="item.bankName" name="银行名称" required="true"/>
+                <param id="code" value="item.bankCode" name="银行代码" required="true"/>
+                <param id="initial" value="item.bankInitial" name="银行首字母" required="true"/>
+            </array>
+        </response>
+    </interface>
+
+    <import resource="com/cicada/params.xml"/>
+</interfaces>

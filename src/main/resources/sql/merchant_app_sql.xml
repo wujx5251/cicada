@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.MerchantAppDao">
+
+    <insert id="insert" parameterType="MerchantApp">
+        INSERT INTO t_merchant_app (
+        mch_id,
+        name,
+        icon,
+        app_id,
+        status,
+        create_time,
+        create_by
+        )
+        VALUES(
+        #{mchId},
+        #{name},
+        #{icon},
+        #{appId},
+        #{status},
+        #{createTime},
+        #{createBy}
+        )
+    </insert>
+
+    <update id="update" parameterType="MerchantApp">
+        UPDATE t_merchant_app
+        SET
+        name = #{name},
+        mch_id = #{mchId}
+        WHERE app_id = #{appId}
+    </update>
+
+    <update id="remove" parameterType="string">
+        UPDATE t_merchant_app
+        SET
+        status = 0
+        WHERE app_id = #{appId}
+    </update>
+
+    <select id="load" parameterType="string" resultType="MerchantApp">
+        SELECT
+        id,
+        mch_id mchId,
+        app_id appId
+        FROM t_merchant_app
+        WHERE app_id = #{appId} and status=1
+    </select>
+
+    <select id="getList" parameterType="MerchantApp" resultType="MerchantApp">
+        SELECT
+          a.name,
+          m.mch_id mchId,
+          m.name mchName,
+          app_id appId
+        FROM t_merchant_app a,t_merchant_info m
+        where
+        a.mch_id=m.mch_id and a.status=1
+        <if test="mchId gt 0">
+            and a.mch_id=#{mchId}
+        </if>
+        <if test="appId gt 0">
+            and app_id=#{appId}
+        </if>
+        <if test="name!=null and name!=''">
+            and a.name like CONCAT(CONCAT('%', #{name}), '%')
+        </if>
+    </select>
+
+</mapper>

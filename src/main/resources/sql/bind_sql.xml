@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.CardBindDao">
+
+    <insert id="insert" parameterType="CardBind">
+        INSERT INTO t_card_bind (
+        record_id,
+        bind_id,
+        card_id,
+        mch_id,
+        app_id,
+        channel,
+        token,
+        short_card_no,
+        enc_card_no,
+        card_type,
+        status,
+        create_time,
+        create_by,
+        bind_time,
+        last_refresh_time
+        )
+        VALUES(
+        #{recordId},
+        #{bindId},
+        #{cardId},
+        #{mchId},
+        #{appId},
+        #{channel},
+        #{token},
+        #{shortCardNo},
+        #{encCardNo},
+        #{cardType},
+        #{status},
+        #{createTime},
+        #{createBy},
+        #{bindTime},
+        #{lastRefreshTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="CardBind">
+        UPDATE t_card_bind
+        SET
+        bind_id = #{bindId},
+        card_id = #{cardId},
+        mch_id = #{mchId},
+        channel = #{channel},
+        token = #{token},
+        short_card_no = #{shortCardNo},
+        card_type = #{cardType},
+        status = #{status},
+        create_time = #{createTime},
+        create_by = #{createBy},
+        bind_time = #{bindTime},
+        last_refresh_time = #{lastRefreshTime}
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="load" parameterType="CardBind" resultType="CardBind">
+        SELECT
+        id,
+        bind_id bindId,
+        card_id cardId,
+        channel,
+        token,
+        short_card_no shortCardNo,
+        card_type cardType,
+        bind_time bindTime,
+        last_refresh_time lastRefreshTime
+        FROM t_card_bind
+        WHERE bind_id = #{bindId} and app_id=#{appId} and status = 1
+    </select>
+
+
+</mapper>

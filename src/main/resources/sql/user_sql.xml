@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.UserDao">
+
+    <select id="loadById" resultType="UserInfo">
+        SELECT
+        id,
+        login_name loginId,
+        user_name username,
+        mail email,
+        create_time createTime,
+        login_time loginTime,
+        type type
+        FROM t_admin_user
+        WHERE login_name= #{loginId} and status=1
+    </select>
+
+    <insert id="save" parameterType="UserInfo">
+        INSERT INTO t_admin_user (
+        user_name,
+        login_name,
+        mail,
+        create_time,
+        login_time
+        ) VALUES (
+        #{userName},
+        #{loginId},
+        #{email},
+        #{createTime},
+        #{loginTime}
+        )
+        <selectKey resultType="long" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterType="UserInfo">
+		UPDATE t_admin_user
+		SET
+			login_time= #{loginTime}
+		WHERE login_name= #{loginId} and status=1
+	</update>
+
+    <update id="delete">
+		UPDATE t_admin_user SET status=0
+		WHERE login_name= #{loginId}
+	</update>
+
+</mapper>

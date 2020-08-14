@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.CardDao">
+
+    <insert id="insert" parameterType="CardInfo">
+      INSERT INTO t_card_info (
+       record_id,
+       card_no,
+       holder_name,
+       bank_code,
+       bank_name,
+       card_type,
+       expired_year,
+       expired_month,
+       certification_type,
+       certification_no,
+       cvv2,
+       mobile_no,
+       salt,
+       create_time,
+       create_by,
+       modify_time,
+       modify_by
+        )
+        VALUES(
+        #{recordId},
+        #{cardNo},
+        #{holderName},
+        #{bankCode},
+        #{bankName},
+        #{cardType},
+        #{expiredYear},
+        #{expiredMonth},
+        #{certificationType},
+        #{certificationNo},
+        #{cvv2},
+        #{mobileNo},
+        #{salt},
+        #{createTime},
+        #{createBy},
+        #{modifyTime},
+        #{modifyBy}
+        )
+    </insert>
+
+    <update id="update" parameterType="CardInfo">
+        update t_card_info
+        set
+        bank_code=#{bankCode},
+        bank_name=#{bankName},
+        modify_time=#{modifyTime}
+        WHERE record_id = #{recordId}
+    </update>
+
+    <select id="load" parameterType="CardInfo" resultType="CardInfo">
+        SELECT
+            id,
+            card_no cardNo,
+            holder_name holderName,
+            bank_code bankCode,
+            bank_name bankName,
+            card_type cardType,
+            expired_year expiredYear,
+            expired_month expiredMonth,
+            certification_type certificationType,
+            certification_no certificationNo,
+            cvv2,
+            mobile_no mobileNo,
+            salt
+        FROM t_card_info
+        WHERE record_id = #{recordId}
+    </select>
+
+
+</mapper>

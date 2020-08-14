@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.TradeRecordDao">
+
+    <insert id="insert" parameterType="TradeRecord">
+        INSERT INTO t_trade_record (
+        record_id,
+        order_id,
+        order_time,
+        subject,
+        body,
+        status,
+        amount,
+        currency,
+        bind_id,
+        notify_url,
+        return_url,
+        quit_url,
+        client_ip,
+        trade_type,
+        pay_time,
+        expire_time
+        )
+        VALUES(
+        #{recordId},
+        #{orderId},
+        #{orderTime},
+        #{subject},
+        #{body},
+        #{status},
+        #{amount},
+        #{currency},
+        #{bindId},
+        #{notifyUrl},
+        #{returnUrl},
+        #{quitUrl},
+        #{clientIp},
+        #{tradeType},
+        #{payTime},
+        #{expireTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="TradeRecord">
+        UPDATE t_trade_record
+        <set>
+            <if test="status!=null">
+                status = #{status},
+            </if>
+            <if test="refundAmount gt 0">
+                refund_amount=#{refundAmount},
+            </if>
+            <if test="payTime!=null">
+                pay_time = #{payTime},
+            </if>
+            <if test="expireTime!=null">
+                expire_time = #{expireTime},
+            </if>
+        </set>
+        WHERE record_id = #{recordId}
+    </update>
+
+    <select id="load" resultType="TradeRecord">
+        SELECT
+        id,
+        record_id recordId,
+        order_id orderId,
+        order_time orderTime,
+        subject,
+        body,
+        status,
+        amount,
+        refund_amount refundAmount,
+        currency,
+        notify_url notifyUrl,
+        return_url returnUrl,
+        quit_url quitUrl,
+        client_ip clientIp,
+        trade_type tradeType,
+        pay_time payTime,
+        expire_time expireTime
+        FROM t_trade_record
+        WHERE record_id = #{recordId}
+    </select>
+
+    <select id="getDetail" resultType="map">
+        SELECT
+        t.record_id recordId,
+        r.target_record_id targetRecordId,
+        t.order_id orderId,
+        t.subject,
+        t.body,
+        t.currency,
+        t.status,
+        t.amount,
+        r.reply_id replyId,
+        r.mch_id mchId,
+        r.app_id appId,
+        r.c_mch_id channelMchId,
+        r.c_app_id channelAppId,
+        r.channel,
+        r.product,
+        r.result_msg resultMsg,
+        trade_type tradeType,
+        pay_time payTime,
+        t.expire_time expireTime,
+        t.notify_url notifyUrl,
+        r.request_time createTime
+        FROM t_trade_record t,t_record r
+        WHERE t.record_id=r.record_id
+        and t.record_id = #{recordId}
+        <if test="tradeType eq 1">
+            and trade_type=1
+        </if>
+        <if test="tradeType eq 2">
+            and trade_type in (3,4)
+        </if>
+    </select>
+
+    <select id="getList" resultType="map">
+        SELECT
+        t.record_id recordId,
+        r.target_record_id targetRecordId,
+        t.order_id orderId,
+        t.subject,
+        t.status,
+        t.amount,
+        r.reply_id replyId,
+        r.mch_id mchId,
+        r.app_id appId,
+        r.channel,
+        r.product,
+        trade_type tradeType,
+        pay_time payTime,
+        r.request_time createTime
+        FROM t_trade_record t,t_record r
+        WHERE t.record_id=r.record_id
+        <if test="tradeType eq 1">
+            and trade_type=1
+        </if>
+        <if test="tradeType eq 2">
+            and trade_type in (3,4)
+        </if>
+        <if test="recordId!=null and recordId!=''">
+            and t.record_id=#{recordId}
+        </if>
+        <if test="targetRecordId!=null and targetRecordId!=''">
+            and r.target_record_id=#{targetRecordId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and t.order_id=#{orderId}
+        </if>
+        <if test="replyId!=null and replyId!=''">
+            and r.reply_id=#{replyId}
+        </if>
+        <if test="channel!=null and channel!=''">
+            and r.channel=#{channel}
+        </if>
+        <if test="product!=null and product!=''">
+            and r.product=#{product}
+        </if>
+        <if test="mchId!=null and mchId!=''">
+            and r.mch_id=#{mchId}
+        </if>
+        <if test="status!=null">
+            and t.status=#{status}
+        </if>
+        <if test="startTime!=null and startTime!=''">
+            AND r.request_time <![CDATA[ >= ]]> #{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            AND r.request_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        order by t.id desc
+    </select>
+
+
+</mapper>

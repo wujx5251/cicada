@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.RecordDetailDao">
+
+    <insert id="insert" parameterType="RecordDetail">
+        INSERT INTO t_record_detail (
+        record_id,
+        request_time,
+        response_time,
+        channel_request_time,
+        channel_response_time,
+        request_data,
+        response_data,
+        channel_request_data,
+        channel_response_data,
+        req_reserved
+        )
+        VALUES(
+        #{recordId},
+        #{requestTime},
+        #{responseTime},
+        #{channelRequestTime},
+        #{channelResponseTime},
+        #{requestData},
+        #{responseData},
+        #{channelRequestData},
+        #{channelResponseData},
+        #{reqReserved}
+        )
+    </insert>
+
+    <update id="update" parameterType="RecordDetail">
+        UPDATE t_record_detail
+        SET
+        response_time = #{responseTime},
+        channel_request_time = #{channelRequestTime},
+        channel_response_time = #{channelResponseTime},
+        response_data = #{responseData},
+        channel_request_data = #{channelRequestData},
+        channel_response_data = #{channelResponseData},
+        page_pay_data = #{pagePayData}
+        WHERE record_id = #{recordId}
+    </update>
+
+    <select id="load" resultType="RecordDetail" parameterType="string">
+        SELECT
+            id,
+            record_id recordId,
+            request_time requestTime,
+            response_time responseTime,
+            channel_request_time channelRequestTime,
+            channel_response_time channelResponseTime,
+            request_data requestData,
+            response_data responseData,
+            channel_request_data channelRequestData,
+            channel_response_data channelResponseData,
+            req_reserved reqReserved
+        FROM t_record_detail
+        WHERE record_id = #{recordId}
+    </select>
+
+    <select id="loadPayInfo" resultType="RecordDetail">
+        SELECT
+          page_pay_data pagePayData,
+          t.expire_time expireTime
+        FROM t_record_detail r,t_trade_record t
+        WHERE r.record_id=t.record_id AND page_pay_data IS NOT NULL AND t.record_id = #{recordId}
+    </select>
+</mapper>

@@ -1,0 +1,14 @@
+.nav-tabs li a .glyphicon-remove-sign:hover {
+    color: red;
+    cursor: pointer;
+}
+
+.nav-tabs .active a {
+    border-top: solid 2px #3498db !important;
+    background: #3498db !important;
+    color: #fff !important;
+}
+
+.tab-content {
+    padding: 1px 0px 16px 0px;
+}

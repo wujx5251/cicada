@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.CallbackRecordDao">
+
+    <insert id="insert" parameterType="CallbackRecord">
+        INSERT INTO t_callback_record (
+        record_id,
+        callback_type,
+        status,
+        finish,
+        agent_notify_time,
+        agent_notify_data,
+        agent_return_time,
+        agent_return_data,
+        callback_data,
+        create_time,
+        sign_key,
+        callback_url
+        )
+        VALUES(
+        #{recordId},
+        #{callbackType},
+        #{status},
+        #{finish},
+        #{agentNotifyTime},
+        #{agentNotifyData},
+        #{agentReturnTime},
+        #{agentReturnData},
+        #{callbackData},
+        #{createTime},
+        #{signKey},
+        #{callbackUrl}
+        )
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterType="CallbackRecord">
+        UPDATE t_callback_record
+        SET
+        finish = #{finish}
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="load" parameterType="CallbackRecord" resultType="CallbackRecord">
+        SELECT
+        id,
+        record_id recordId,
+        callback_type callbackType,
+        status,
+        finish,
+        agent_notify_time agentNotifyTime,
+        agent_notify_data agentNotifyData,
+        agent_return_time agentReturnTime,
+        agent_return_data agentReturnData,
+        callback_data callbackData,
+        create_time createTime,
+        sign_key signKey,
+        callback_url callbackUrl
+        FROM t_callback_record
+        WHERE record_id = #{recordId}
+    </select>
+
+
+</mapper>

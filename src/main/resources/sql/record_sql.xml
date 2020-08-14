@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.RecordInfoDao">
+
+    <insert id="insert" parameterType="RecordInfo">
+        INSERT INTO t_record (
+        record_id,
+        reply_id,
+        target_record_id,
+        method,
+        version,
+        mch_id,
+        app_id,
+        c_mch_id,
+        c_app_id,
+        channel,
+        product,
+        bind_id,
+        amount,
+        result_status,
+        result_msg,
+        request_time,
+        response_time,
+        channel_request_time,
+        channel_response_time,
+        server_ip
+        )
+        VALUES(
+        #{recordId},
+        #{replyId},
+        #{targetRecordId},
+        #{method},
+        #{version},
+        #{mchId},
+        #{appId},
+        #{channelMchId},
+        #{channelAppId},
+        #{channel},
+        #{product},
+        #{bindId},
+        #{amount},
+        #{resultStatus},
+        #{resultMsg},
+        #{requestTime},
+        #{responseTime},
+        #{channelRequestTime},
+        #{channelResponseTime},
+        #{serverIp}
+        )
+    </insert>
+
+    <update id="update" parameterType="RecordInfo">
+        UPDATE t_record
+        SET
+        <if test="resultStatus!=null">
+            result_status = #{resultStatus},
+        </if>
+        c_mch_id= #{channelMchId},
+        c_app_id= #{channelAppId},
+        product = #{product},
+        reply_id = #{replyId},
+        result_msg = #{resultMsg},
+        response_time = #{responseTime},
+        channel_request_time = #{channelRequestTime},
+        channel_response_time = #{channelResponseTime},
+        extra_data = #{extraData}
+        WHERE record_id = #{recordId}
+    </update>
+
+    <sql id="field">
+        r.id,
+        r.record_id recordId,
+        r.reply_id replyId,
+        r.target_record_id targetRecordId,
+        r.method method,
+        r.amount amount,
+        r.bind_id bindId,
+        r.version version,
+        r.mch_id mchId,
+        r.app_id appId,
+        r.channel,
+        r.product,
+        r.result_status resultStatus,
+        r.request_time requestTime,
+        r.response_time responseTime,
+        r.channel_request_time channelRequestTime,
+        r.channel_response_time channelResponseTime,
+        r.extra_data extraData,
+        d.req_reserved resultMsg
+    </sql>
+
+    <select id="load" resultType="RecordInfo">
+        SELECT
+        <include refid="field"/>
+        FROM t_record r,t_record_detail d
+        WHERE r.record_id=d.record_id and r.record_id = #{recordId} and r.mch_id = #{mchId}
+    </select>
+
+    <select id="loadById" resultType="RecordInfo">
+        SELECT
+        <include refid="field"/>
+        FROM t_record r,t_record_detail d
+        WHERE r.record_id=d.record_id and r.record_id = #{recordId}
+    </select>
+
+</mapper>

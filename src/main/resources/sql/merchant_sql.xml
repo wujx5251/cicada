@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.MerchantDao">
+
+    <insert id="insert" parameterType="MerchantInfo">
+        INSERT INTO t_merchant_info (
+        name,
+        icon,
+        mch_id,
+        mch_key,
+        status,
+        create_time,
+        create_by
+        )
+        VALUES(
+        #{name},
+        #{icon},
+        #{mchId},
+        #{mchKey},
+        #{status},
+        #{createTime},
+        #{createBy}
+        )
+    </insert>
+
+    <update id="update" parameterType="MerchantInfo">
+        UPDATE t_merchant_info
+        <set>
+            <if test="mchKey!=null and mchKey!=''">
+                mch_key=#{mchKey},
+            </if>
+            <if test="name!=null and name!=''">
+                name = #{name},
+            </if>
+        </set>
+
+        WHERE mch_id = #{mchId}
+    </update>
+
+    <delete id="remove" parameterType="MerchantInfo">
+        UPDATE t_merchant_info
+        SET
+        status = 0
+        WHERE mch_id = #{mchId}
+    </delete>
+
+    <sql id="base_filed">
+        id,
+        name,
+        icon,
+        mch_id mchId,
+        mch_key mchKey,
+        status,
+        create_time createTime,
+        create_by createBy
+    </sql>
+
+    <select id="load" parameterType="string" resultType="MerchantInfo">
+        SELECT
+        <include refid="base_filed"/>
+        FROM t_merchant_info
+        WHERE mch_id=#{mchId} and status=1
+    </select>
+
+    <select id="getList" parameterType="MerchantInfo" resultType="MerchantInfo">
+        SELECT
+        <include refid="base_filed"/>
+        FROM t_merchant_info
+        where
+        status=1
+        <if test="mchId gt 0">
+            and mch_id=#{mchId}
+        </if>
+        <if test="name!=null and name!=''">
+            and name like CONCAT(CONCAT('%', #{name}), '%')
+        </if>
+    </select>
+
+</mapper>

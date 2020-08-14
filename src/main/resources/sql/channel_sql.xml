@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.ChannelConfigDao">
+
+    <insert id="insert" parameterType="ChannelConfig" >
+        INSERT INTO t_channel_config (
+        app_id,
+        channel,
+        product,
+        salt,
+        create_time,
+        create_by,
+        modify_time,
+        modify_by
+        )
+        VALUES(
+        #{appId},
+        #{channel},
+        #{product},
+        #{salt},
+        #{createTime},
+        #{createBy},
+        #{modifyTime},
+        #{modifyBy}
+        )
+    </insert>
+
+    <delete id="delete" parameterType="int" >
+        DELETE FROM t_channel_config
+        WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="ChannelConfig" >
+        UPDATE t_channel_config
+        SET
+        app_id = #{appId},
+        channel = #{channel},
+        product = #{product},
+        salt = #{salt},
+        create_time = #{createTime},
+        create_by = #{createBy},
+        modify_time = #{modifyTime},
+        modify_by = #{modifyBy}
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="load" parameterType="ChannelConfig" resultType="ChannelConfig">
+        SELECT
+        id,
+        salt
+        FROM t_channel_config
+        WHERE
+        <choose>
+            <when test="id gt 0">
+                id = #{id}
+            </when>
+            <otherwise>
+                app_id = #{appId} and
+                channel = #{channel} and
+                product = #{product}
+            </otherwise>
+        </choose>
+    </select>
+
+
+</mapper>

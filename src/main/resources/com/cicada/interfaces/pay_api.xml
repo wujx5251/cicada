@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces xmlns="http://www.dotin.cc/schema/interfaces"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.dotin.cc/schema/interfaces http://www.dotin.cc/schema/interfaces/interface.xsd"
+            namespace="trade" version="v1.1.0" group="付款接口">
+
+    <interface id="app.pay" method="POST" name="APP支付">
+        <request>
+            <include refid="params.pay_request"/>
+        </request>
+        <response>
+            <include refid="params.response"/>
+            <if test="status!=@com.cicada.core.enums.TradingStatus@FAIL">
+                <param id="payStr" value="data" name="支付字符串/参数" order="6"/>
+            </if>
+        </response>
+    </interface>
+
+    <interface id="wap.pay" method="POST" name="H5支付">
+        <request>
+            <include refid="params.pay_request">
+                <exclusion>clientIp</exclusion>
+            </include>
+            <param id="returnUrl" name="交易完成跳转回业务页面地址" required="true" length="200" order="10">
+                <desc>交易完成跳转回业务页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+            <param id="quitUrl" name="取消支付跳转页面" length="200" order="11">
+                <desc>用于取消支付返回的页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+            <choose>
+                <when test="channelId=='wxpay'">
+                    <param id="clientIp" name="客户端IP" length="15" required="true" order="12">
+                        <desc>微信支付必填， IPv4地址 格式 xxx.xxx.xxx.xxx</desc>
+                        <pattern>${format.ip}</pattern>
+                    </param>
+                </when>
+                <otherwise>
+                    <param id="clientIp" name="客户端IP" length="15" order="12">
+                        <desc>微信支付必填，IPv4地址 格式 xxx.xxx.xxx.xxx</desc>
+                        <pattern>${format.ip}</pattern>
+                    </param>
+                </otherwise>
+            </choose>
+        </request>
+        <response>
+            <include refid="params.response"/>
+            <if test="status!=@com.cicada.core.enums.TradingStatus@FAIL">
+                <param id="payUrl" value="data" name="支付跳转地址" order="6"/>
+            </if>
+        </response>
+    </interface>
+
+    <interface id="wap.pay" method="POST" name="H5支付" version="v1.0.1">
+        <desc>支付宝旧版mapi wap支付接口</desc>
+        <request>
+            <include refid="params.pay_request"/>
+            <param id="channelId" name="交易类型" required="true" length="15" override="true">
+                <pattern>alipay</pattern>
+                <desc>
+                    alipay：支付宝
+                </desc>
+            </param>
+            <param id="returnUrl" name="交易完成跳转回业务页面地址" required="true" length="200" order="10">
+                <desc>交易完成跳转回业务页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+            <param id="quitUrl" name="取消支付跳转页面" length="200" order="11">
+                <desc>用于取消支付返回的页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+        </request>
+        <response>
+            <include refid="params.response"/>
+            <if test="status!=@com.cicada.core.enums.TradingStatus@FAIL">
+                <param id="payUrl" value="data" name="支付跳转地址" order="6"/>
+            </if>
+        </response>
+    </interface>
+
+    <interface id="web.pay" method="POST" name="WEB支付">
+        <request>
+            <include refid="params.pay_request"/>
+            <param id="returnUrl" name="交易完成跳转回业务页面地址" required="true" length="200" order="10">
+                <desc>交易完成跳转回业务页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+            <param id="quitUrl" name="取消支付跳转页面" length="200" order="11">
+                <desc>用于取消支付返回的页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+            <param id="bankCode" name="银行简码" length="15" order="12">
+                <desc>
+                    农业银行ABC，详见银行CODE码表，银联、快钱交易类型生效
+                </desc>
+            </param>
+        </request>
+        <response>
+            <include refid="params.response"/>
+            <if test="status!=@com.cicada.core.enums.TradingStatus@FAIL">
+                <param id="payUrl" value="data" name="支付跳转地址" order="6"/>
+            </if>
+        </response>
+    </interface>
+
+    <interface id="js.pay" method="POST" name="JSAPI支付">
+        <desc>
+            <![CDATA[
+            1、获取openid<br/>
+            通过调用支付平台 /auth/wxpay/{appId}接口完成openId的获取，<br/>
+            调用接口时需携带redirectUrl参数(需进行urlEncode)，待平台获取的openId后会进行url重定向到redirectUrl页面并携带openId参数<br/>
+            实例：get http://paytest.9zcap.com/auth/wxpay/182112912?redirectUrl=https%3a%2f%2fmp.weixin.qq.com%2f<br/>
+             ]]>
+        </desc>
+        <request>
+            <include refid="params.pay_request"/>
+            <param id="channelId" name="交易类型" required="true" length="15" override="true">
+                <pattern>wxpay|qqpay</pattern>
+                <desc>wxpay：微信支付，qqpay：QQ钱包</desc>
+            </param>
+            <param id="openId" name="微信授权id" required="true" length="32" override="true" order="9">
+                <desc>微信公众号授权Id</desc>
+            </param>
+            <param id="returnUrl" name="交易完成跳转回业务页面地址" required="true" length="200" order="11">
+                <desc>交易完成跳转回业务页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+            <param id="quitUrl" name="取消支付跳转页面" length="200" order="12">
+                <desc>用于取消支付返回的页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+        </request>
+        <response>
+            <include refid="params.response"/>
+            <if test="status!=@com.cicada.core.enums.TradingStatus@FAIL">
+                <param id="payUrl" value="data" name="支付跳转地址" order="6"/>
+            </if>
+        </response>
+    </interface>
+
+    <interface id="applet.pay" method="POST" name="小程序支付">
+        <request>
+            <include refid="params.pay_request"/>
+            <param id="channelId" name="交易类型" required="true" length="15" override="true">
+                <pattern>wxpay|qqpay</pattern>
+                <desc>wxpay：微信支付</desc>
+            </param>
+            <param id="openId" name="微信授权id" required="true" length="32" override="true" order="9">
+                <desc>微信公众号授权Id</desc>
+            </param>
+            <param id="returnUrl" name="交易完成跳转回业务页面地址" required="true" length="200" order="11">
+                <desc>交易完成跳转回业务页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+            <param id="quitUrl" name="取消支付跳转页面" length="200" order="12">
+                <desc>用于取消支付返回的页面地址</desc>
+                <pattern>${format.http}</pattern>
+            </param>
+        </request>
+        <response>
+            <include refid="params.response"/>
+            <if test="status!=@com.cicada.core.enums.TradingStatus@FAIL">
+                <param id="payUrl" value="data" name="支付跳转地址" order="6"/>
+            </if>
+        </response>
+    </interface>
+
+    <interface id="qr.pay" method="POST" name="付款码支付">
+        <request>
+            <include refid="params.pay_request"/>
+            <param id="channelId" name="交易类型" required="true" length="15" override="true">
+                <pattern>alipay|wxpay|unionpay|jdpay|qqpay</pattern>
+                <desc>
+                    alipay：支付宝，wxpay：微信支付，unionpay：银联支付，qqpay：QQ钱包，jdpay：京东支付
+                </desc>
+            </param>
+            <param id="authCode" alias="payCode" name="支付码" required="true" length="32" order="10"/>
+        </request>
+        <response>
+            <include refid="params.response"/>
+        </response>
+    </interface>
+
+    <interface id="scan.pay" method="POST" name="扫码支付">
+        <request>
+            <include refid="params.pay_request"/>
+            <param id="channelId" name="交易类型" required="true" length="15" override="true">
+                <pattern>alipay|wxpay|unionpay|jdpay|qqpay</pattern>
+                <desc>
+                    alipay：支付宝，wxpay：微信支付，unionpay：银联支付，qqpay：QQ钱包，jdpay：京东支付
+                </desc>
+            </param>
+        </request>
+        <response>
+            <include refid="params.response"/>
+            <if test="status!=@com.cicada.core.enums.TradingStatus@FAIL">
+                <param id="qrCode" value="data" name="二维码" order="6">
+                    <desc>二维码图片base64信息</desc>
+                </param>
+            </if>
+        </response>
+    </interface>
+
+    <interface id="quick.pay" method="POST" name="无卡支付">
+        <request>
+            <include refid="params.quick_request"/>
+        </request>
+        <response>
+            <include refid="params.response"/>
+        </response>
+    </interface>
+
+    <interface id="auth.pay" method="POST" name="预授权">
+        <request>
+            <include refid="params.quick_request"/>
+        </request>
+        <response>
+            <include refid="params.response"/>
+        </response>
+    </interface>
+
+    <interface id="auth.cfm.pay" method="POST" name="预授权完成">
+        <desc><![CDATA[
+        对预授权交易进行扣款消费操作 <br/>
+        特别注意以下重要规则：<br/>
+            ◆ recordId必须上送预授权交易成功时返回的平台流水号；<br/>
+            ◆ 预授权交易必填在30天，否则银行会自动解除预授权金额的冻结；<br/>
+            ◆ 交易金额amount不上送时会对预授权时的全额消费；
+        ]]></desc>
+        <request>
+            <include refid="params.request"/>
+            <param id="orderId" name="业务单号" required="true" length="32" order="3"/>
+            <param id="orderTime" name="订单时间" dataType="DateTime" required="true" length="19" order="4">
+                <desc>商户发送交易时间（yyyy-MM-dd HH:mm:ss）,业务单号+订单时间具有唯一性</desc>
+            </param>
+        </request>
+        <response>
+            <include refid="params.response"/>
+        </response>
+    </interface>
+
+    <import resource="com/cicada/params.xml"/>
+</interfaces>

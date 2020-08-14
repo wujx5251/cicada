@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.CallbackDetailDao">
+
+    <insert id="insert" parameterType="CallbackDetail" >
+        INSERT INTO t_callback_detail (
+        callback_id,
+        callback_time,
+        callback_return_time,
+        callback_return_data,
+        finish
+        )
+        VALUES(
+        #{callbackId},
+        #{callbackTime},
+        #{callbackReturnTime},
+        #{callbackReturnData},
+        #{finish}
+        )
+    </insert>
+
+    <select id="getList" parameterType="CallbackDetail" resultType="CallbackDetail">
+        SELECT
+        id,
+        callback_id callbackId,
+        callback_time callbackTime,
+        callback_return_time callbackReturnTime,
+        callback_return_data callbackReturnData,
+        finish
+        FROM t_callback_detail
+        WHERE callback_id = #{callbackId}
+    </select>
+
+</mapper>

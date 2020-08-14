@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces xmlns="http://www.dotin.cc/schema/interfaces"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.dotin.cc/schema/interfaces http://www.dotin.cc/schema/interfaces/interface.xsd"
+            namespace="params" version="v1.0.0">
+
+    <params id="request">
+        <param id="mchId" name="商户编号" required="true" length="32">
+            <desc>商户编码,支付平台分配给商户的ID，在后台应用信息里面可以查看到</desc>
+        </param>
+        <param id="recordId" name="交易流水号" required="true" length="32">
+            <desc>交易平台流水号</desc>
+        </param>
+        <param id="amount" name="交易金额" dataType="Integer">
+            <desc>单位为分1元上送100，不上送使用原交易金额</desc>
+        </param>
+        <param id="subject" name="订单标题" length="128"/>
+        <param id="body" name="订单描述" length="128"/>
+        <param id="notifyUrl" name="交易状态异步通知地址" required="true" length="200">
+            <desc>交易状态发生变化时通过此地址通知业务方</desc>
+            <pattern>${format.http}</pattern>
+        </param>
+        <param id="reqReserved" name="用户回送数据" length="2048">
+            <desc>交易应答时会原样返回</desc>
+        </param>
+        <param id="sign" name="签名信息" length="48" required="true">
+            <desc> <![CDATA[ ${format.signDesc} ]]> </desc>
+        </param>
+    </params>
+
+    <params id="pay_request">
+        <param id="mchId" name="商户编号" required="true" length="32">
+            <desc>商户编码,支付平台分配给商户的ID，在后台应用信息里面可以查看到</desc>
+        </param>
+        <param id="appId" name="app id" required="true" length="32">
+            <desc>应用ID,支付平台分配给应用的ID，在后台应用信息里面可以查看到</desc>
+        </param>
+        <param id="channelId" name="支付渠道" required="true" length="10">
+            <pattern>alipay|wxpay|unionpay|kqpay|qqpay|jdpay|bdpay</pattern>
+            <desc>
+                alipay：支付宝，wxpay：微信支付，unionpay：银联支付，kqpay：快钱支付，qqpay：QQ钱包，jdpay：京东支付，bdpay：百度钱包
+            </desc>
+        </param>
+        <param id="orderId" name="业务单号" required="true" length="32"/>
+        <param id="orderTime" name="订单时间" dataType="DateTime" required="true" length="19">
+            <desc>商户发送交易时间（yyyy-MM-dd HH:mm:ss）,业务单号+订单时间具有唯一性</desc>
+        </param>
+        <param id="amount" name="交易金额" dataType="Integer" required="true">
+            <desc>单位为分1元上送100</desc>
+        </param>
+        <param id="subject" name="订单标题" required="true" length="128"/>
+        <param id="body" name="订单描述" length="128"/>
+        <param id="notifyUrl" name="交易状态异步通知地址" required="true" length="200">
+            <desc>交易状态发生变化时通过此地址通知业务方</desc>
+            <pattern>${format.http}</pattern>
+        </param>
+        <param id="clientIp" name="客户端IP" length="15">
+            <desc>IPv4地址 格式 xxx.xxx.xxx.xxx</desc>
+            <pattern>${format.ip}</pattern>
+        </param>
+        <param id="reqReserved" name="用户回送数据" length="2048">
+            <desc>交易应答时会原样返回</desc>
+        </param>
+        <param id="sign" name="签名信息" length="48" required="true">
+            <desc> <![CDATA[ ${format.signDesc} ]]> </desc>
+        </param>
+    </params>
+
+    <params id="quick_request">
+        <include refid="pay_request">
+            <exclusion>amount</exclusion>
+        </include>
+        <param id="channelId" name="交易类型" required="true" length="15" override="true">
+            <pattern>unionpay|kqpay</pattern>
+            <desc>
+                unionpay：银联支付，kqpay：快钱支付
+            </desc>
+        </param>
+        <choose>
+            <when test="recordId!=null and recordId!=''">
+                <param id="authCode" alias="smsCode" required="true" name="短信验证码" length="6" order="10">
+                    <desc>短信消费时必须上送</desc>
+                </param>
+                <param id="recordId" name="短信流水号" length="32" order="11">
+                    <desc>短信消费时必须上送</desc>
+                </param>
+            </when>
+            <otherwise>
+                <param id="amount" name="交易金额" dataType="Integer" required="true" override="true" order="6">
+                    <desc>短信消费时选填，单位为分1元上送100</desc>
+                </param>
+                <param id="bindId" name="绑卡Id" required="true" length="32" order="10">
+                    <desc>短信消费时选填</desc>
+                </param>
+            </otherwise>
+        </choose>
+    </params>
+
+    <params id="response">
+        <param id="method" name="接口名称"/>
+        <param id="version" name="接口版本"/>
+        <param id="channelId" name="支付渠道"/>
+        <param id="recordId" name="交易流水号" length="32">
+            <desc>交易平台流水号，本次交易请求的唯一标识</desc>
+        </param>
+        <param id="replyId" name="渠道交易流水号" length="32">
+            <desc>三方支付渠道交易流水号</desc>
+        </param>
+        <param id="amount" name="交易金额" dataType="Integer">
+            <desc>单位为分1元上送100</desc>
+        </param>
+        <param id="orderId" name="业务单号" length="32"/>
+        <param id="orderTime" name="订单时间" dataType="DateTime" length="19"/>
+        <param id="status" name="交易状态">
+            <desc>FAIL:失败，SUCCESS：成功，PENDING：待交易</desc>
+        </param>
+        <param id="resultMsg" value="errMsg" name="交易信息描述"/>
+        <param id="reqReserved" name="用户回送数据">
+            <desc>用户回送数据</desc>
+        </param>
+    </params>
+
+</interfaces>

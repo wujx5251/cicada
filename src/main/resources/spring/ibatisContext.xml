@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- 数据源 -->
+    <bean id="dataSourceIs" class="com.dotin.dao.jndi.JndiObjectFactoryBean">
+        <property name="jndiName">
+            <value>java:comp/env/jdbc/cicada,cicada_read</value>
+        </property>
+    </bean>
+
+    <!--  mybatis持久数据访问对象  -->
+    <bean id="sqlSessionFactory" class="com.dotin.dao.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSourceIs"/>
+        <property name="typeAliasesPackage" value="com.cicada.storage.bean"/>
+        <property name="plugins">
+            <bean class="com.dotin.dao.mybatis.plagin.DialectPlugin"/>
+        </property>
+    </bean>
+
+    <!--  mybatis映射扫码器  -->
+    <bean class="com.dotin.dao.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.cicada.storage.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!-- 定义事务管理器 -->
+    <bean id="transactionManager" class="com.dotin.dao.jdbc.datasource.DynamicDataSourceTransactionManager">
+        <property name="dataSource">
+            <ref bean="dataSourceIs"/>
+        </property>
+    </bean>
+
+    <!--生成事务代理-->
+    <bean id="transactionService" abstract="true" lazy-init="true"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <property name="proxyTargetClass" value="true"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="remove*">PROPAGATION_REQUIRED</prop>
+                <prop key="insert*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- 基于注解事务托管 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.BankDao">
+
+    <insert id="insert" parameterType="BankInfo">
+            INSERT INTO t_bank_list (
+            bank_name,
+            bank_code,
+            bank_initial,
+            card_type,
+            icon_url,
+            icon_base64,
+            level,
+            channel,
+            pay_type,
+            create_time,
+            create_by,
+            modify_time,
+            modify_by
+            )
+            VALUES(
+            #{bankName},
+            #{bankCode},
+            #{bankInitial},
+            #{cardType},
+            #{iconUrl},
+            #{iconBase64},
+            #{level},
+            #{channel},
+            #{payType},
+            #{createTime},
+            #{createBy},
+            #{modifyTime},
+            #{modifyBy}
+            )
+        </insert>
+
+    <delete id="delete" parameterType="int">
+            DELETE FROM t_bank_list
+            WHERE id = #{id}
+        </delete>
+
+    <update id="update" parameterType="BankInfo">
+            UPDATE t_bank_list
+            SET
+            bank_name = #{bankName},
+            bank_code = #{bankCode},
+            bank_initial = #{bankInitial},
+            card_type = #{cardType},
+            icon_url = #{iconUrl},
+            icon_base64 = #{iconBase64},
+            level = #{level},
+            channel = #{channel},
+            pay_type = #{payType},
+            create_time = #{createTime},
+            create_by = #{createBy},
+            modify_time = #{modifyTime},
+            modify_by = #{modifyBy}
+            WHERE id = #{id}
+        </update>
+
+
+    <select id="load" parameterType="long" resultType="BankInfo">
+        SELECT
+            id,
+            bank_name bankName,
+            bank_code bankCode,
+            bank_initial bankInitial,
+            card_type cardType,
+            icon_url iconUrl,
+            icon_base64 iconBase64,
+            level,
+            channel,
+            pay_type payType,
+            create_time createTime,
+            create_by createBy,
+            modify_time modifyTime,
+            modify_by modifyBy
+        FROM t_bank_list
+        WHERE id = #{id}
+    </select>
+
+    <select id="getList" parameterType="BankInfo" resultType="BankInfo">
+        SELECT
+        bank_name bankName,
+        bank_code bankCode,
+        bank_initial bankInitial,
+        pay_type payType
+        FROM t_bank_list
+        WHERE channel = #{channel} and card_type = #{cardType}
+        ORDER BY bankInitial
+    </select>
+
+</mapper>

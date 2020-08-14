@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.cicada">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        <context:exclude-filter type="annotation" expression="com.cool.core.annotation.ApiService"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- 接口配置 -->
+    <bean class="com.cool.core.spring.ConfigureMappingFactoryBean"
+          p:interfaceLocations="classpath*:com/cicada/interfaces/*.xml"
+          p:configLocations="classpath*:com/cicada/config/*.xml"/>
+
+    <bean class="com.cicada.core.auto.ComponentScannerConfigurer"
+          p:basePackage="com.cicada.component.**.interfaces"/>
+
+    <bean id="defaultApiService" class="com.cicada.core.exporter.DefaultPayExporter"/>
+
+    <bean id="distributeLock" class="com.dotin.lock.simple.RedisDistributeLock">
+        <constructor-arg index="0" value="#{T(com.cicada.Constants).GROUP_NAME}"/>
+        <constructor-arg index="1" value="#{T(com.cicada.Constants).NAMESPACE_DAO_MIN}"/>
+    </bean>
+
+</beans>

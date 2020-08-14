@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 扫描所有action对象 -->
+    <context:component-scan base-package="com.cicada.mvc.controller,com.cicada.core.exporter" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- 启动Spring MVC的注解功能 -->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <!--  开启支持@RequestMapping  -->
+        <property name="messageConverters">
+            <list>
+                <bean class="com.dotin.spring.converter.HttpMessageConverter">
+                    <constructor-arg value="UTF-8"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/login"/>
+            <mvc:exclude-mapping path="/doLogin"/>
+            <mvc:exclude-mapping path="/pay/**"/>
+            <mvc:exclude-mapping path="/auth/**"/>
+            <mvc:exclude-mapping path="/notify/**"/>
+            <mvc:exclude-mapping path="/direct/**"/>
+            <bean class="com.cicada.mvc.interceptor.SessionInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+    </bean>
+
+    <mvc:resources location="/static/js/" mapping="/js/**"/>
+    <mvc:resources location="/static/css/" mapping="/css/**"/>
+    <mvc:resources location="/static/lib/" mapping="/assets/**"/>
+
+    <mvc:view-controller path="/" view-name="index.jsp"/>
+    <mvc:view-controller path="/dashboard" view-name="dashboard.jsp"/>
+    <mvc:view-controller path="/payrecord" view-name="payrecord.jsp"/>
+    <mvc:view-controller path="/refundrecord" view-name="refundrecord.jsp"/>
+    <mvc:view-controller path="/traderecord" view-name="traderecord.jsp"/>
+    <mvc:view-controller path="/notifyrecord" view-name="notifyrecord.jsp"/>
+    <mvc:view-controller path="/billrecord" view-name="billrecord.jsp"/>
+    <mvc:view-controller path="/application" view-name="application.jsp"/>
+    <mvc:view-controller path="/merchant" view-name="merchant.jsp"/>
+    <mvc:view-controller path="/login" view-name="login.jsp"/>
+
+</beans>

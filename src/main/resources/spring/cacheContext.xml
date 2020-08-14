@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <bean class="com.dotin.cache.simple.L2CacheTemplate">
+        <constructor-arg type="long" name="maximumSize" value="#{T(com.cicada.Constants).LOCAL_CACHE_SIZE}"/>
+        <constructor-arg type="java.lang.String" name="group" value="#{T(com.cicada.Constants).GROUP_NAME}"/>
+        <constructor-arg type="int" name="namespaceMin" value="#{T(com.cicada.Constants).NAMESPACE_DAO_MIN}"/>
+        <constructor-arg type="int" name="namespaceMax" value="#{T(com.cicada.Constants).NAMESPACE_DAO_MAX}"/>
+    </bean>
+
+    <bean id="cacheAdvisor" class="com.dotin.cache.advisor.CacheAdvisor"/>
+
+    <bean id="cacheEvictAdvisor" class="com.dotin.cache.advisor.CacheEvictAdvisor"/>
+
+    <aop:config>
+        <aop:aspect ref="cacheAdvisor">
+            <aop:pointcut id="cachePointcut" expression="
+            execution(* com.cicada.storage.dao..*.load*(..)) or
+            execution(* com.cicada.storage.dao..*.get*(..))"/>
+            <aop:around method="doCache" pointcut-ref="cachePointcut"/>
+        </aop:aspect>
+        <aop:aspect ref="cacheAdvisor">
+            <aop:pointcut id="cacheComponent" expression="
+            @annotation(com.dotin.cache.annotation.Cache) and
+            execution(* com.cicada.component..*.interfaces.*Query.doPay(..))"/>
+            <aop:around method="doCache" pointcut-ref="cacheComponent"/>
+        </aop:aspect>
+
+
+        <aop:aspect ref="cacheEvictAdvisor">
+            <aop:pointcut id="cacheEvictPointcut" expression="
+            execution(* com.cicada.storage.dao..*.update*(..)) or
+            execution(* com.cicada.storage.dao..*.delete*(..)) or
+            execution(* com.cicada.storage.dao..*.save*(..))"/>
+            <aop:around method="doCache" pointcut-ref="cacheEvictPointcut"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>

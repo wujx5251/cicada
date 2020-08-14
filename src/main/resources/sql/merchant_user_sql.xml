@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cicada.storage.dao.MerchantUserDao">
+
+    <insert id="insert" parameterType="MerchantUser" >
+        INSERT INTO t_merchant_user (
+        mch_id,
+        login_id,
+        password,
+        email,
+        mobile_no,
+        role,
+        status,
+        create_time,
+        create_by,
+        modify_time,
+        modify_by
+        )
+        VALUES(
+        #{mchId},
+        #{loginId},
+        #{password},
+        #{email},
+        #{mobileNo},
+        #{role},
+        #{status},
+        #{createTime},
+        #{createBy},
+        #{modifyTime},
+        #{modifyBy}
+        )
+    </insert>
+
+    <delete id="delete" parameterType="int" >
+        DELETE FROM t_merchant_user
+        WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="MerchantUser" >
+        UPDATE t_merchant_user
+        SET
+        mch_id = #{mchId},
+        login_id = #{loginId},
+        password = #{password},
+        email = #{email},
+        mobile_no = #{mobileNo},
+        role = #{role},
+        status = #{status},
+        create_time = #{createTime},
+        create_by = #{createBy},
+        modify_time = #{modifyTime},
+        modify_by = #{modifyBy}
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="load" parameterType="MerchantUser" resultType="MerchantUser">
+        SELECT
+        id,
+        mch_id mchId,
+        login_id loginId,
+        password,
+        email,
+        mobile_no mobileNo,
+        role,
+        status,
+        create_time createTime,
+        create_by createBy,
+        modify_time modifyTime,
+        modify_by modifyBy
+        FROM t_merchant_user
+        WHERE id = #{id}
+    </select>
+
+</mapper>
