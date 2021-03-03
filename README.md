@@ -83,6 +83,7 @@ trade.refund
 |qrcode|二维码支付（被扫）|
 |scan|扫码支付（主扫）|
 |jsapi|jsapi支付|
+|applet|小程序支付|
 |quick|无卡快捷支付|
 |auth|无卡预授权|
 |auth_cfm|无卡预授权完成|
