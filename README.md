@@ -9,6 +9,7 @@
 * trade.scan.pay
 * trade.web.pay
 * trade.js.pay
+* trade.applet.pay
 * trade.quick.pay
 * trade.auth.pay
 * trade.auth.cfm.pay
