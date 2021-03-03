@@ -295,3 +295,13 @@ trade.refund
 * 回调业务处理失败时进行重试
 * 支付接口业务唯一标识校验
 * 后台管理功能完善
+
+## 官方文档
+
+* [微信支付开发文档](https://pay.weixin.qq.com/wiki/doc/apiv3/wxpay/pages/api.shtml)
+* [支付宝开发文档](https://openhome.alipay.com/docCenter/docCenter.htm)
+* [QQ钱包开发文档](https://qpay.qq.com/buss/doc.shtml)
+* [京东支付开发文档](https://payapi.jd.com)
+* [银联支付开发文档](https://up.95516.com/open/openapi)
+* [快钱支付开发文档](https://open.99bill.com/menu!access.do)
+* [PayPal开发文档](https://developer.paypal.com/docs/api/overview)
